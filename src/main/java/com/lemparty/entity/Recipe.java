@@ -1,58 +1,32 @@
 package com.lemparty.entity;
 
-public class Recipe {
+import java.io.Serializable;
+import java.util.List;
 
-    private String email;
-    private String workzipcode;
-    private String homezipcode;
-    private String gender;
-    private String price;
+public class Recipe implements Serializable {
+
+    private String userID;
+    private String name;
     private String cuisine;
-    private String dietrestrictions;
-    private String alcohol;
+    private String description;
+    private String note;
 
-    public Recipe(){
+    private List<Ingredient> ingredientsList;
 
+    public String getUserID() {
+        return userID;
     }
 
-    public String getEmail() {
-        return email;
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public String getName() {
+        return name;
     }
 
-    public String getWorkzipcode() {
-        return workzipcode;
-    }
-
-    public void setWorkzipcode(String workzipcode) {
-        this.workzipcode = workzipcode;
-    }
-
-    public String getHomezipcode() {
-        return homezipcode;
-    }
-
-    public void setHomezipcode(String homezipcode) {
-        this.homezipcode = homezipcode;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public String getPrice() {
-        return price;
-    }
-
-    public void setPrice(String price) {
-        this.price = price;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getCuisine() {
@@ -63,19 +37,30 @@ public class Recipe {
         this.cuisine = cuisine;
     }
 
-    public String getDietrestrictions() {
-        return dietrestrictions;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDietrestrictions(String dietrestrictions) {
-        this.dietrestrictions = dietrestrictions;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public String getAlcohol() {
-        return alcohol;
+    public String getNote() {
+        return note;
     }
 
-    public void setAlcohol(String alcohol) {
-        this.alcohol = alcohol;
+    public void setNote(String note) {
+        this.note = note;
     }
+
+    public List<Ingredient> getIngredientsList() {
+        return ingredientsList;
+    }
+
+    public void setIngredientsList(List<Ingredient> ingredientsList) {
+        this.ingredientsList = ingredientsList;
+    }
+
+
+
 }

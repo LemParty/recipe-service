@@ -2,7 +2,7 @@ package com.lemparty.exception;
 
 public class InvalidRecipeException extends Exception {
 
-    public InvalidRecipeException(String email){
-        super("No User Exists For Email: "+email);
+    public InvalidRecipeException(String name, String userID){
+        super("Invalid Recipe for "+name+" "+userID);
     }
 }
