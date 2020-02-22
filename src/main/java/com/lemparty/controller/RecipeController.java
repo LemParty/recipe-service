@@ -45,13 +45,25 @@ public class RecipeController {
         return new ResponseEntity(created, HttpStatus.OK);
     }
 
-    @GetMapping("/recipe/{userID}")
-    public ResponseEntity get( @PathVariable(name = "userID") String userID,
-                                     @RequestParam(required = false, name = "name") String name) {
-        Recipe recipe = null;
+    @GetMapping("/recipe")
+    public ResponseEntity get( @RequestParam(required = false, name = "name") String name,
+                               @RequestParam(required = false, name = "userID") String userID,
+                               @RequestParam(required = false, name = "recipeID") String recipeID) {
+        Object recipe = null;
         try {
-            recipe = recipeService.get(name, userID);
+            // The most specific look up
+            if(recipeID != null && !recipeID.equals("")) {
+                recipe = recipeService.getRecipeByRecipeID(recipeID);
 
+
+            } else if(name != null && !name.equals("")
+                        && userID != null && !userID.equals("")){
+                recipe = recipeService.get(name, userID);
+            } else if(userID != null && !userID.equals("")){
+                recipe = recipeService.getRecipeByUserID(userID);
+            } else {
+                return new ResponseEntity("Invalid Request", HttpStatus.BAD_REQUEST);
+            }
         } catch(Exception e){
             e.printStackTrace();
             return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

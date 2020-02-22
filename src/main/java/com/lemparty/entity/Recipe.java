@@ -5,6 +5,7 @@ import java.util.List;
 
 public class Recipe implements Serializable {
 
+    private String recipeID;
     private String userID;
     private String name;
     private String cuisine;
@@ -12,6 +13,14 @@ public class Recipe implements Serializable {
     private String note;
 
     private List<Ingredient> ingredientsList;
+
+    public String getRecipeID() {
+        return recipeID;
+    }
+
+    public void setRecipeID(String recipeID) {
+        this.recipeID = recipeID;
+    }
 
     public String getUserID() {
         return userID;

@@ -6,16 +6,16 @@ import com.lemparty.exception.InvalidRecipeException;
 import com.lemparty.exception.RecipeAlreadyExistsException;
 import com.lemparty.exception.RecipeDoesNotExistException;
 import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.*;
 
 import static com.mongodb.client.model.Filters.and;
 
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.conversions.Bson;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
@@ -62,12 +62,39 @@ public class MongoRecipeDAO {
     }
 
     public Recipe getRecipeByNameAndUserID(String name, String userID){
-        Bson criteria = and(eq("name", name),  eq("userID", userID));
+
+        Bson[] bsonArray = new Bson[]{eq("name", name), eq("userID", userID)};
+        Bson criteria = and(bsonArray);
 
         Recipe obtainedRecipe = collection.find(criteria).first();
-        System.out.println("Obtained Recipe is not Null: "+String.valueOf(obtainedRecipe != null));
 
         return obtainedRecipe;
+    }
+
+    public Recipe getRecipeByRecipeID(String recipeID){
+
+        Bson[] bsonArray = new Bson[]{eq("recipeID", recipeID)};
+        Bson criteria = and(bsonArray);
+
+        Recipe obtainedRecipe = collection.find(criteria).first();
+
+        return obtainedRecipe;
+    }
+
+    public List<Recipe> getRecipesByUserID(String userID){
+        List<Recipe> recipeList = new ArrayList<Recipe>();
+
+        Bson[] bsonArray = bsonArray = new Bson[]{eq("userID", userID)};
+        Bson criteria = and(bsonArray);
+
+        FindIterable<Recipe> obtainedRecipe = collection.find(criteria);
+        MongoCursor<Recipe> recipeIterator = obtainedRecipe.iterator();
+
+        while(recipeIterator.hasNext()){
+            recipeList.add(recipeIterator.next());
+        }
+
+        return recipeList;
     }
 
 }
