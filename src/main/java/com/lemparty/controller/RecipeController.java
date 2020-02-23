@@ -15,12 +15,12 @@ public class RecipeController {
     RecipeService recipeService;
 
 
-    @PutMapping("/recipe")
+    @PostMapping("")
     public ResponseEntity create(@RequestBody Recipe recipe) {
 
         Recipe created = null;
         try {
-            created = recipeService.create(recipe);
+            created = recipeService.createRecipe(recipe);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity(e.getMessage(), HttpStatus.CONFLICT);
@@ -30,12 +30,12 @@ public class RecipeController {
         return new ResponseEntity(created, HttpStatus.OK);
     }
 
-    @PostMapping("/recipe")
-    public ResponseEntity update(@RequestBody Recipe recipe) {
+    @PutMapping("{recipeID}")
+    public ResponseEntity update(@PathVariable String recipeID, @RequestBody Recipe recipe) {
 
         Recipe created = null;
         try {
-            created = recipeService.update(recipe);
+            created = recipeService.updateRecipe(recipeID, recipe);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity(e.getMessage(), HttpStatus.CONFLICT);
@@ -45,7 +45,7 @@ public class RecipeController {
         return new ResponseEntity(created, HttpStatus.OK);
     }
 
-    @GetMapping("/recipe")
+    @GetMapping("")
     public ResponseEntity get( @RequestParam(required = false, name = "name") String name,
                                @RequestParam(required = false, name = "userID") String userID,
                                @RequestParam(required = false, name = "recipeID") String recipeID) {
@@ -53,14 +53,12 @@ public class RecipeController {
         try {
             // The most specific look up
             if(recipeID != null && !recipeID.equals("")) {
-                recipe = recipeService.getRecipeByRecipeID(recipeID);
-
-
+                recipe = recipeService.findById(recipeID);
             } else if(name != null && !name.equals("")
                         && userID != null && !userID.equals("")){
-                recipe = recipeService.get(name, userID);
+                recipe = recipeService.findByNameAndUserID(name, userID);
             } else if(userID != null && !userID.equals("")){
-                recipe = recipeService.getRecipeByUserID(userID);
+                recipe = recipeService.findByUserID(userID);
             } else {
                 return new ResponseEntity("Invalid Request", HttpStatus.BAD_REQUEST);
             }

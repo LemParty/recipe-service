@@ -1,13 +1,15 @@
 package com.lemparty.service;
 
 import com.lemparty.data.MongoRecipeDAO;
+import com.lemparty.data.MongoRecipeRepository;
 import com.lemparty.entity.Recipe;
+import com.lemparty.exception.DuplicateRecipeByNameAndUserException;
 import com.lemparty.exception.InvalidRecipeException;
-import com.lemparty.exception.RecipeAlreadyExistsException;
 import com.lemparty.exception.RecipeDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class RecipeService {
@@ -15,44 +17,69 @@ public class RecipeService {
     @Autowired
     private MongoRecipeDAO recipeDAO;
 
-    public Recipe create(Recipe recipe) throws RecipeAlreadyExistsException {
+    @Autowired
+    private MongoRecipeRepository recipeRepository;
+
+    public Recipe createRecipe(Recipe recipe) throws DuplicateRecipeByNameAndUserException {
 
         recipe.setRecipeID(UUID.randomUUID().toString());
 
-        boolean recipeCreated = recipeDAO.create(recipe);
+        Optional<Recipe> existingRecipe = recipeRepository.findByNameAndUserID(recipe.getName(), recipe.getUserID());
 
-        if(recipeCreated)
-            return recipe;
-        else
-            return null; //TODO do proper error handling
+        if(!existingRecipe.isPresent()){
+            Recipe createdRecipe = recipeRepository.insert(recipe);
+            return createdRecipe;
+        } else{
+            throw new DuplicateRecipeByNameAndUserException(recipe.getName(), recipe.getUserID());
+        }
     }
 
-    public Recipe update(Recipe recipe) throws RecipeDoesNotExistException {
+    public Recipe updateRecipe(String recipeID, Recipe recipe) throws RecipeDoesNotExistException {
 
-        boolean updated = recipeDAO.update(recipe);
+        Optional<Recipe> existingRecipe = recipeRepository.findById(recipeID);
 
-        if(updated)
-            return recipe;
-        else
-            return null;
+        if(!existingRecipe.isPresent()){
+            throw new RecipeDoesNotExistException(recipe.getName(), recipe.getUserID());
+        }
+
+        recipe.setRecipeID(existingRecipe.get().getRecipeID());
+        Recipe updated = recipeRepository.save(recipe);
+
+        return updated;
+
     }
 
-    public Recipe get(String name, String userID) {
-        Recipe obtainedRecipe = recipeDAO.getRecipeByNameAndUserID(name, userID);
+    public Recipe findById(String id) throws InvalidRecipeException {
 
-        return obtainedRecipe;
+        Optional<Recipe> recipeGotten = recipeRepository.findById(id);
+
+        if(!recipeGotten.isPresent())
+            throw new InvalidRecipeException(id);
+
+        return recipeGotten.get();
     }
 
-    public Recipe getRecipeByRecipeID(String recipeID) {
-        Recipe obtainedRecipe = recipeDAO.getRecipeByRecipeID(recipeID);
+    public List<Recipe> findByUserID(String userID) throws InvalidRecipeException {
 
-        return obtainedRecipe;
+        List<Recipe> recipeGotten = recipeRepository.findByUserID(userID);
+
+        if(recipeGotten.isEmpty()){
+            throw new InvalidRecipeException(userID);
+        }
+
+        return recipeGotten;
     }
 
-    public List<Recipe> getRecipeByUserID(String userID) {
-        List<Recipe> obtainedRecipe = recipeDAO.getRecipesByUserID(userID);
+    public Recipe findByNameAndUserID(String name, String userID) throws InvalidRecipeException {
 
-        return obtainedRecipe;
+        Optional<Recipe> recipeGotten = recipeRepository.findByNameAndUserID(name, userID);
+
+        if(!recipeGotten.isPresent()){
+            throw new InvalidRecipeException(userID);
+        }
+
+        return recipeGotten.get();
     }
+    
 
 }

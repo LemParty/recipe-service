@@ -1,10 +1,15 @@
 package com.lemparty.entity;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.io.Serializable;
 import java.util.List;
 
+@Document(collection = "recipes")
 public class Recipe implements Serializable {
 
+    @Id
     private String recipeID;
     private String userID;
     private String name;

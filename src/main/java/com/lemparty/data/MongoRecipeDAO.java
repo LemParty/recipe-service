@@ -2,8 +2,7 @@ package com.lemparty.data;
 
 import com.lemparty.entity.Recipe;
 import com.lemparty.entity.Ingredient;
-import com.lemparty.exception.InvalidRecipeException;
-import com.lemparty.exception.RecipeAlreadyExistsException;
+import com.lemparty.exception.DuplicateRecipeByNameAndUserException;
 import com.lemparty.exception.RecipeDoesNotExistException;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
@@ -21,7 +20,7 @@ import static com.mongodb.client.model.Filters.eq;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
-
+@Deprecated
 public class MongoRecipeDAO {
     MongoCollection<Recipe> collection;
 
@@ -35,7 +34,7 @@ public class MongoRecipeDAO {
         collection = database.getCollection("recipeservice", Recipe.class).withCodecRegistry(pojoCodecRegistry);
     }
 
-    public boolean create(Recipe recipe) throws RecipeAlreadyExistsException {
+    public boolean create(Recipe recipe) throws DuplicateRecipeByNameAndUserException {
 
         Recipe existingRecipe = getRecipeByNameAndUserID(recipe.getName(), recipe.getUserID());
 
@@ -43,7 +42,7 @@ public class MongoRecipeDAO {
             collection.insertOne(recipe);
             return true;
         } else{
-            throw new RecipeAlreadyExistsException(recipe.getName(), recipe.getUserID());
+            throw new DuplicateRecipeByNameAndUserException(recipe.getName(), recipe.getUserID());
         }
 
     }
