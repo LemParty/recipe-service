@@ -1,6 +1,5 @@
 package com.lemparty.service;
 
-import com.lemparty.data.MongoRecipeDAO;
 import com.lemparty.data.MongoRecipeRepository;
 import com.lemparty.entity.Recipe;
 import com.lemparty.exception.DuplicateRecipeByNameAndUserException;
@@ -13,9 +12,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class RecipeService {
-
-    @Autowired
-    private MongoRecipeDAO recipeDAO;
 
     @Autowired
     private MongoRecipeRepository recipeRepository;

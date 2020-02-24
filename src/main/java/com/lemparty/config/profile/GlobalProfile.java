@@ -1,6 +1,7 @@
 package com.lemparty.config.profile;
 
 import com.lemparty.service.RecipeService;
+import com.lemparty.util.SSLContextHelper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,5 +16,10 @@ public class GlobalProfile {
     @Bean
     public RecipeService getRecipeService() {
         return new RecipeService();
+    }
+
+    @Bean
+    public SSLContextHelper getSSLContextHelper() {
+        return new SSLContextHelper();
     }
 }
