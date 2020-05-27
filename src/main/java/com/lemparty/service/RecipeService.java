@@ -1,6 +1,7 @@
 package com.lemparty.service;
 
 import com.lemparty.data.IngredientRepository;
+import com.lemparty.data.PaginationDAO;
 import com.lemparty.data.RecipeRepository;
 import com.lemparty.entity.Ingredient;
 import com.lemparty.entity.IngredientID;
@@ -17,7 +18,13 @@ import java.util.*;
 public class RecipeService {
 
     @Autowired
+    private Date dateCap;
+
+    @Autowired
     private RecipeRepository recipeRepository;
+
+    @Autowired
+    private PaginationDAO paginationDAO;
 
     @Autowired
     private IngredientRepository ingredientRepository;
@@ -29,6 +36,8 @@ public class RecipeService {
         Optional<Recipe> existingRecipe = recipeRepository.findByNameAndUserID(recipe.getName(), recipe.getUserID());
 
         if(!existingRecipe.isPresent()){
+
+            recipe.setDatestring(Math.abs(dateCap.getTime() - recipe.getDate().getTime()));
             Recipe createdRecipe = recipeRepository.save(recipe);
 
             List<Ingredient> iterIngredient = createdRecipe.getIngredientsList();
@@ -36,8 +45,6 @@ public class RecipeService {
 
             for(Ingredient i : iterIngredient){
                 i.setRecipeID(recipeID);
-//                i.setName(recipe.getName());
-//                i.setIngredientID(UUID.randomUUID().toString());
                 saveIngredients.add(i);
             }
             ingredientRepository.saveAll(saveIngredients);
@@ -58,6 +65,8 @@ public class RecipeService {
         }
 
         recipe.setRecipeID(existingRecipe.get().getRecipeID());
+        recipe.setDatestring(Math.abs(dateCap.getTime() - recipe.getDate().getTime()));
+
         Recipe updated = recipeRepository.save(recipe);
 
         List<Ingredient> saveIngredients = updated.getIngredientsList();
@@ -83,17 +92,18 @@ public class RecipeService {
         return toReturn;
     }
 
-    public List<Recipe> findByUserID(String userID) throws InvalidRecipeException {
+    public List<Recipe> findByUserID(String... userID) throws InvalidRecipeException {
         Map<String, List<Ingredient>> recipeToIngredientsMap = new HashMap<String, List<Ingredient>>();
+        List<Recipe> updatedRecipeList = new ArrayList<Recipe>();
 
-        List<Recipe> recipeGotten = recipeRepository.findByUserID(userID);
+//        List<Recipe> recipeGotten = recipeRepository.findByUserIDIn(userID);
+        List<Recipe> recipeGotten = paginationDAO.findByUserID(userID);
 
         if(recipeGotten.isEmpty()){
-            throw new InvalidRecipeException(userID);
+            return updatedRecipeList;
         }
 
         List<String> idsToSearch = new ArrayList<String>();
-//        List<IngredientID> idsToSearch = new ArrayList<IngredientID>();
         for(Recipe r : recipeGotten){
             IngredientID newID = new IngredientID();
             newID.setRecipeID(r.getRecipeID());
@@ -101,9 +111,9 @@ public class RecipeService {
             idsToSearch.add(r.getRecipeID());
         }
 
-//
+
+
         Iterable<Ingredient> ingredientsGotten = ingredientRepository.findAllByRecipeIDIn(idsToSearch);
-                //findAllById(idsToSearch);//findByRecipeIDIn(idsToSearch);
         for(Ingredient i : ingredientsGotten){
             List<Ingredient> mapIngredients = recipeToIngredientsMap.get(i.getRecipeID());
             if(mapIngredients == null){
@@ -114,7 +124,6 @@ public class RecipeService {
             recipeToIngredientsMap.put(i.getRecipeID(), mapIngredients);
         }
 
-        List<Recipe> updatedRecipeList = new ArrayList<Recipe>();
 
         for(int i = 0; i < recipeGotten.size(); i++){
             Recipe inplaceRecipe = recipeGotten.get(i);
@@ -122,22 +131,8 @@ public class RecipeService {
 
             updatedRecipeList.add(inplaceRecipe);
         }
+
         return updatedRecipeList;
-    }
-
-    public Recipe findByNameAndUserID(String name, String userID) throws InvalidRecipeException {
-
-        Optional<Recipe> recipeGotten = recipeRepository.findByNameAndUserID(name, userID);
-
-        if(!recipeGotten.isPresent()){
-            throw new InvalidRecipeException(userID);
-        }
-
-        List<Ingredient> ingredientsGotten = ingredientRepository.findByRecipeID(recipeGotten.get().getRecipeID());
-        Recipe toReturn = recipeGotten.get();
-        toReturn.setIngredientsList(ingredientsGotten);
-
-        return recipeGotten.get();
     }
     
 

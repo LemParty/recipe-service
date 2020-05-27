@@ -45,18 +45,15 @@ public class RecipeController {
         return new ResponseEntity(created, HttpStatus.OK);
     }
 
-    @GetMapping("")
+    @GetMapping("/search")
     public ResponseEntity get( @RequestParam(required = false, name = "name") String name,
-                               @RequestParam(required = false, name = "userID") String userID,
+                               @RequestParam(required = false, name = "userID") String[] userID,
                                @RequestParam(required = false, name = "recipeID") String recipeID) {
         Object recipe = null;
         try {
             // The most specific look up
             if(recipeID != null && !recipeID.equals("")) {
                 recipe = recipeService.findById(recipeID);
-            } else if(name != null && !name.equals("")
-                        && userID != null && !userID.equals("")){
-                recipe = recipeService.findByNameAndUserID(name, userID);
             } else if(userID != null && !userID.equals("")){
                 recipe = recipeService.findByUserID(userID);
             } else {
@@ -69,4 +66,5 @@ public class RecipeController {
         return new ResponseEntity(recipe, HttpStatus.OK);
 
     }
+
 }
